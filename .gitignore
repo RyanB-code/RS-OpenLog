@@ -1,0 +1,5 @@
+.vscode
+*.a
+Test Code
+Object Files
+*.code-workspace
