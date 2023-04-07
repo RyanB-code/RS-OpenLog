@@ -18,14 +18,13 @@ namespace RSLog{
         const std::source_location									m_location;
         const std::chrono::time_point<std::chrono::system_clock> 	m_timestamp;
     };
-    struct LogSettings{
-        bool m_showTime 		{ true };
-        bool m_showCode 		{ true };
-        bool m_showMsg			{ true };
-        bool m_showLocation 	{ true };
+    struct LogSettings{ 
+        bool m_showTime 		        { true };
+        bool m_showCode 		        { true };
+        bool m_showMsg			        { true };
+        bool m_showLocation 	        { true };
         uint8_t m_widthOfCodeTextBox 	{ 7 };
         uint8_t m_logMsgMaxSize			{ 64 };
-
     };
 
     class LogCode {
@@ -59,8 +58,6 @@ namespace RSLog{
         std::unordered_map<std::string, std::unique_ptr<LogCode>> m_logCodesAllowed;
     };
     
-
-
     class LogTarget{
     public:
         LogTarget(const std::string name);
@@ -71,29 +68,21 @@ namespace RSLog{
 
         friend std::ostream& operator<<(std::ostream& os, const LogFilter& lc);
 
-
     private:
         const std::string m_name {"NULL"};
     };
 
-    
+    bool        init();
 
-    // Interact with the Logger
-    const   LogTarget* 	GetCurrentLogTarget     () noexcept;
-    const   LogFilter*	GeCurrentLogFilter      () noexcept;
-    const   bool		GetShowLogLocation      () noexcept;
-    const   uint8_t		GetLogCodeTextWidth     () noexcept;
-    const   uint8_t		GetLogMsgMaxSize        () noexcept;
-
-            void        SetLogMsgMaxLength	    (const uint8_t length,      const std::source_location location=std::source_location::current()) noexcept;
-            void        SetLogCodeTextWidth	    (const uint8_t length,      const std::source_location location=std::source_location::current()) noexcept;
-            bool        SetLogTarget			(const std::string target,  const std::source_location location=std::source_location::current());
-            void        SetShowLogLocations     (bool show,                 const std::source_location location=std::source_location::current()) noexcept;
-            bool        SetLogFilter            (const std::string filter,  const std::source_location location=std::source_location::current());
-
+    bool        SetLogFilter            (const std::string filter,  const std::source_location location=std::source_location::current());
+    bool        AddActiveLogTarget	    (const std::string target,  const std::source_location location=std::source_location::current());
+    bool        RemoveActiveLogTarget   (const std::string target,  const std::source_location location=std::source_location::current());
 
     void        AddLogFilter    (std::unique_ptr<LogFilter> filter);
     void        AddLogTarget    (std::unique_ptr<LogTarget> target);
+
+    LogFilter*  GetLogFilter    (const std::string key);
+    LogTarget*  GetLogTarget    (const std::string key);
 
     // Logging
     bool        Log             (const std::string msg, std::string code,   const std::source_location location=std::source_location::current());

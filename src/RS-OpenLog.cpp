@@ -3,36 +3,6 @@
 #include "Logger.h"
 
 namespace RSLog{
-	
-	// Logging
-	bool 			Log			(const std::string msg, const std::string code, const std::source_location location){
-		
-		if(Logger::GetInstance().Log(msg, code, location)){
-			// This either means the log was not meant to be displayed OR file could not be written to
-			// TODO - Add Return codes to handle what it could return
-			return false;
-		}
-		else { return true; }
-		
-	return false;
-	}
-	std::string 	ThrowMSG		(const std::string msg, const std::source_location location){
-		RSLog::Log(msg, "ERROR", location);
-		return msg;
-	}
-
-	void 			AddLogFilter 	(std::unique_ptr<LogFilter> filter){
-		Logger::GetInstance().AddLogFilter(std::move(filter));
-
-		return;
-	}
-    void        AddLogTarget    (std::unique_ptr<LogTarget> target){
-		Logger::GetInstance().AddLogTarget(std::move(target));
-	}
-
-
-
-
 
 	// Log Code
 	LogCode::LogCode		(const std::string code) : m_code{code} 	{   }
@@ -42,10 +12,6 @@ namespace RSLog{
 		os << lc.str();
 		return os;
 	}
-
-
-
-
 
 
 
@@ -87,12 +53,6 @@ namespace RSLog{
 
 
 
-
-
-
-
-
-
 	// Log Target
 	LogTarget::LogTarget(const std::string name) : m_name{name} {
 		
@@ -112,27 +72,51 @@ namespace RSLog{
 		return os;
 	}
 
-	void SetShowLogLocations	(bool show, const std::source_location location) noexcept{
-		//RST_Config::GetInstance().m_logger.SetShowLogLocation(show);
-		if(show) 	{ RSLog::Log("Show Log locations was set to [TRUE]", 	"RST", location); }
-		else		{ RSLog::Log("Show Log locations was set to [FALSE]", "RST", location); }
+	bool init(){
+
+		return false;
 	}
-	bool SetLogFilter		(const std::string filter, const std::source_location location){
+
+	void 	AddLogFilter 	(std::unique_ptr<LogFilter> filter){
+		Logger::GetInstance().AddLogFilter(std::move(filter));
+		return;
+	}
+    void    AddLogTarget    (std::unique_ptr<LogTarget> target){
+		Logger::GetInstance().AddLogTarget(std::move(target));
+		return;
+	}
+	bool 	SetLogFilter	(const std::string filter, const std::source_location location){
 		if(!Logger::GetInstance().SetLogFilter(filter)){
 			throw std::invalid_argument("No filter exists");
 		}
 		else
 			return true;
-	return false;
+		return false;
 	}
-	bool SetLogTarget		(const std::string target,  const std::source_location location)  {
-		if(!Logger::GetInstance().SetLogTarget(target)){
-			throw std::invalid_argument("No target exists");
-		}
-		else
-			return true;
-	return false; 
+	bool	AddActiveLogTarget	(const std::string target,  const std::source_location location)  {
+			return Logger::GetInstance().AddActiveLogTarget(target);
 	}
+	bool    RemoveActiveLogTarget   (const std::string target,  const std::source_location location){
+		return Logger::GetInstance().RemoveActiveLogTarget(target);
+	}
+	
+	LogFilter*  GetLogFilter   (const std::string key){
+		return Logger::GetInstance().GetLogFilter(key);
+	}
+	LogTarget*  GetLogTarget   (const std::string key){
+		return Logger::GetInstance().GetLogTarget(key);
+	}
+
+
+	// Logging
+	bool 			Log			(const std::string msg, const std::string code, const std::source_location location){
+		return Logger::GetInstance().Log(msg, code, location);
+	}
+	std::string 	ThrowMSG		(const std::string msg, const std::source_location location){
+		RSLog::Log(msg, "ERROR", location);
+		return msg;
+	}
+	
 
 }
 

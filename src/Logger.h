@@ -7,11 +7,24 @@
 #include <source_location>
 #include <iomanip>
 #include <memory>
+#include <vector>
+#include <algorithm>
 
 #include <iostream>
 
 using namespace RSLog;
 
+template<typename T>
+T* FindInMap(const std::string key, std::unordered_map<std::string, std::unique_ptr<T>>& map){
+	try{
+		auto& buffer { map.at(key) };
+		return buffer.get();									
+	}
+	// If key could not be found, return false
+	catch(std::out_of_range& e){
+		return nullptr;
+	}
+}
 
 class Logger final {
 public:
@@ -28,16 +41,20 @@ public:
 	inline 	void SetLogMsgMaxSize		(const uint8_t length	 )	noexcept { m_logSettings.m_logMsgMaxSize = length;		 	}
 	inline 	void SetLogCodeTextWidth	(const uint8_t length	 )	noexcept { m_logSettings.m_widthOfCodeTextBox = length;	 	}
 			bool SetLogFilter			(const std::string key)		noexcept;
-			bool SetLogTarget			(const std::string target) 	noexcept;
+	
+	bool AddActiveLogTarget		(const std::string key);
+	bool RemoveActiveLogTarget	(const std::string key);
 
 	// Log Filter Interaction
 	void	AddLogFilter	(std::unique_ptr<LogFilter> filter);
 	bool	RemoveLogFilter	(const std::string& key);
+	LogFilter* GetLogFilter (const std::string key);
 
 	
 	// Log Target Interaction
 	void	AddLogTarget	(std::unique_ptr<LogTarget> target);
-	bool	RemoveLogTarget	(const std::string& key);	
+	bool	RemoveLogTarget	(const std::string& key);
+	LogTarget* GetLogTarget (const std::string key);	
 
 	bool 	Log	(const std::string& msg, const std::string& code, const std::source_location location=std::source_location::current());
 
@@ -53,8 +70,9 @@ private:
 	LogSettings m_logSettings {true, true, true, true};
 
 	// Current Profiles
-	LogTarget*	m_logTarget	{ nullptr };
-	LogFilter*	m_logFilter { nullptr };
+	static const int m_maxLogTargets {5};
+	std::vector<LogTarget*> m_logTargetsActive	{  };
+	LogFilter*				m_logFilter 		{ nullptr };
 
 };
 
